@@ -1,0 +1,596 @@
+/* Cosmic Terms of Service Styles */
+.terms-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, 
+    #0a0e27 0%, 
+    #1a1b5a 25%, 
+    #2d3561 50%, 
+    #4a5568 75%, 
+    #667eea 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated Background Elements */
+.bg-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cloud {
+  position: absolute;
+  background: radial-gradient(ellipse, rgba(255, 255, 255, 0.1), transparent);
+  border-radius: 50px;
+  animation: float-cloud 20s infinite ease-in-out;
+}
+
+.cloud-1 {
+  width: 200px;
+  height: 80px;
+  top: 10%;
+  left: -50px;
+  animation-delay: 0s;
+}
+
+.cloud-2 {
+  width: 150px;
+  height: 60px;
+  top: 30%;
+  right: -40px;
+  animation-delay: 7s;
+}
+
+.cloud-3 {
+  width: 180px;
+  height: 70px;
+  bottom: 20%;
+  left: 10%;
+  animation-delay: 14s;
+}
+
+@keyframes float-cloud {
+  0%, 100% { transform: translateX(0) translateY(0); opacity: 0.3; }
+  25% { transform: translateX(50px) translateY(-20px); opacity: 0.6; }
+  50% { transform: translateX(100px) translateY(-10px); opacity: 0.4; }
+  75% { transform: translateX(150px) translateY(-30px); opacity: 0.7; }
+}
+
+.star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  animation: twinkle 3s infinite;
+}
+
+.star-1 { top: 15%; left: 20%; animation-delay: 0s; }
+.star-2 { top: 25%; right: 30%; animation-delay: 1s; }
+.star-3 { top: 45%; left: 70%; animation-delay: 2s; }
+.star-4 { bottom: 30%; left: 15%; animation-delay: 0.5s; }
+.star-5 { bottom: 40%; right: 20%; animation-delay: 1.5s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+.floating-shape {
+  position: absolute;
+  background: linear-gradient(45deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  animation: float-shape 15s infinite ease-in-out;
+}
+
+.shape-1 {
+  width: 60px;
+  height: 60px;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  top: 20%;
+  right: 10%;
+  animation-delay: 0s;
+}
+
+.shape-2 {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  bottom: 25%;
+  right: 25%;
+  animation-delay: 5s;
+}
+
+.shape-3 {
+  width: 50px;
+  height: 50px;
+  border-radius: 20%;
+  top: 60%;
+  left: 5%;
+  animation-delay: 10s;
+}
+
+@keyframes float-shape {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-30px) rotate(120deg); }
+  66% { transform: translateY(-60px) rotate(240deg); }
+}
+
+.terms-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header Section */
+.terms-header {
+  padding: 120px 0 80px;
+  text-align: center;
+  position: relative;
+}
+
+.header-content {
+  position: relative;
+  z-index: 2;
+}
+
+.magic-circle {
+  display: inline-block;
+  width: 120px;
+  height: 120px;
+  background: conic-gradient(from 0deg, #667eea, #764ba2, #a8edea, #fed6e3, #667eea);
+  border-radius: 50%;
+  padding: 4px;
+  margin-bottom: 2rem;
+  animation: rotate-magic 8s linear infinite;
+}
+
+.inner-circle {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0e27, #1a1b5a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-emoji {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.5));
+}
+
+@keyframes rotate-magic {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.page-title {
+  font-size: 4rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title-word {
+  background: linear-gradient(135deg, #ffffff, #a8edea, #fed6e3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: float-word 3s ease-in-out infinite;
+}
+
+.title-word:nth-child(2) { animation-delay: 0.3s; }
+.title-word:nth-child(3) { animation-delay: 0.6s; }
+
+@keyframes float-word {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.page-subtitle {
+  font-size: 1.4rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.6;
+}
+
+.cosmic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  padding: 12px 24px;
+  border-radius: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+}
+
+.badge-icon {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px #667eea); }
+  50% { transform: scale(1.2); filter: drop-shadow(0 0 15px #667eea); }
+}
+
+/* Main Content */
+.terms-content {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 40px 40px 0 0;
+  padding: 80px 0;
+  margin-top: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.terms-section {
+  margin-bottom: 5rem;
+  position: relative;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.section-icon {
+  font-size: 2.5rem;
+  animation: bounce-glow 3s ease-in-out infinite;
+}
+
+@keyframes bounce-glow {
+  0%, 100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 10px currentColor); }
+  50% { transform: translateY(-5px) scale(1.1); filter: drop-shadow(0 0 20px currentColor); }
+}
+
+.terms-section h2 {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #ffffff, #a8edea);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  margin: 0;
+}
+
+.terms-section p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 1.5rem;
+}
+
+/* Welcome Section */
+.cosmic-welcome {
+  text-align: center;
+  padding: 4rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(168, 237, 234, 0.1));
+  border-radius: 30px;
+  margin-bottom: 5rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+}
+
+.cosmic-welcome::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+  animation: rotate-slow 20s linear infinite;
+}
+
+.cosmic-welcome .section-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Service Constellation */
+.service-constellation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 3rem;
+  margin-top: 3rem;
+}
+
+.service-planet {
+  position: relative;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  text-align: center;
+  transition: all 0.5s ease;
+  overflow: hidden;
+}
+
+.service-planet:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+}
+
+.planet-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.1), transparent 70%);
+  animation: rotate-glow 10s linear infinite;
+}
+
+@keyframes rotate-glow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.planet-content {
+  position: relative;
+  z-index: 2;
+}
+
+.planet-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  animation: float-planet 4s ease-in-out infinite;
+}
+
+@keyframes float-planet {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(180deg); }
+}
+
+.service-planet h3 {
+  color: #a8edea;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* Responsibility Galaxy */
+.responsibility-galaxy {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.responsibility-orbit {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+.responsibility-orbit:hover {
+  transform: translateX(10px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.orbit-icon {
+  font-size: 2.5rem;
+  min-width: 60px;
+  animation: pulse-orbit 2s ease-in-out infinite;
+}
+
+@keyframes pulse-orbit {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.orbit-content h3 {
+  color: #fed6e3;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* Mystical Disclaimer */
+.mystical-disclaimer {
+  background: linear-gradient(135deg, rgba(118, 75, 162, 0.2), rgba(102, 126, 234, 0.1));
+  padding: 4rem;
+  border-radius: 30px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+.disclaimer-aurora {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, 
+    transparent 0%, 
+    rgba(102, 126, 234, 0.1) 25%, 
+    transparent 50%, 
+    rgba(168, 237, 234, 0.1) 75%, 
+    transparent 100%);
+  animation: aurora-wave 8s ease-in-out infinite;
+}
+
+@keyframes aurora-wave {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+/* Celestial Contact */
+.celestial-contact {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(168, 237, 234, 0.2));
+  padding: 4rem;
+  border-radius: 30px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(20px);
+}
+
+.contact-aurora {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(from 0deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.1), 
+    transparent, 
+    rgba(102, 126, 234, 0.1), 
+    transparent);
+  animation: rotate-aurora 15s linear infinite;
+}
+
+@keyframes rotate-aurora {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.cosmic-signature {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 16px 32px;
+  border-radius: 50px;
+  margin-top: 2rem;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+  color: white;
+}
+
+.signature-icon, .signature-sparkle {
+  animation: sparkle-dance 2s ease-in-out infinite alternate;
+}
+
+.signature-sparkle {
+  animation-delay: 1s;
+}
+
+@keyframes sparkle-dance {
+  from { transform: scale(1) rotate(0deg); }
+  to { transform: scale(1.2) rotate(180deg); }
+}
+
+/* Back Button */
+.back-section {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.cosmic-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 18px 36px;
+  border-radius: 50px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.cosmic-back-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+}
+
+.btn-icon {
+  font-size: 1.5rem;
+  animation: rocket-bounce 2s ease-in-out infinite;
+}
+
+@keyframes rocket-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(-10deg); }
+}
+
+.btn-trail {
+  position: absolute;
+  top: 50%;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation: trail-sweep 2s ease-in-out infinite;
+}
+
+@keyframes trail-sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2.5rem;
+  }
+  
+  .service-constellation {
+    grid-template-columns: 1fr;
+  }
+  
+  .responsibility-orbit {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .cosmic-welcome,
+  .mystical-disclaimer,
+  .celestial-contact {
+    padding: 2rem;
+  }
+  
+  .magic-circle {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .header-emoji {
+    font-size: 2rem;
+  }
+}

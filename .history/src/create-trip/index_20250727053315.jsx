@@ -1,0 +1,532 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+import { SelectBudgetOptions, SelectTravelesList } from '@/constants/options';
+import { generateTravelPlan } from '@/service/AIModal';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import { useGoogleLogin } from '@react-oauth/google';
+import { doc, setDoc } from 'firebase/firestore';
+import { db, auth } from '@/service/firebaseConfig';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { toast } from 'sonner';
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FcGoogle } from "react-icons/fc";
+import './CreateTrip.css';
+
+const LoadingOverlay = ({ isVisible, message, subMessage }) => {
+  if (!isVisible) return null;
+  
+  return (
+    <div className="loading-overlay">
+      <div className="loading-modal">
+        <div className="loading-content">
+          <div className="loading-icon-container">
+            <AiOutlineLoading3Quarters className="loading-icon" />
+            <div className="loading-ring"></div>
+          </div>
+          <div className="loading-text">
+            <h3 className="loading-title">{message || 'Processing...'}</h3>
+            {subMessage && <p className="loading-subtitle">{subMessage}</p>}
+          </div>
+          <div className="loading-dots">
+            <div className="loading-dot"></div>
+            <div className="loading-dot" style={{ animationDelay: '0.1s' }}></div>
+            <div className="loading-dot" style={{ animationDelay: '0.2s' }}></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function CreateTrip() {
+  const [place, setPlace] = useState();
+  const [formData, setFormData] = useState({});
+  const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [loadingSubMessage, setLoadingSubMessage] = useState('');
+  const [isLogin, setIsLogin] = useState(true);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authData, setAuthData] = useState({ email: '', password: '', name: '' });
+
+  const handleInputChange = (name, value) => {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleAuthInputChange = (field, value) => {
+    setAuthData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: (codeResp) => GetUserProfile(codeResp),
+    onError: () => toast.error('Google login failed.')
+  });
+
+  const validateForm = () => {
+    const errors = [];
+    if (!formData?.location) errors.push('Please select a destination');
+    if (!formData?.noOfDays) errors.push('Please specify trip duration');
+    if (!formData?.budget) errors.push('Please select your budget');
+    if (!formData?.traveler) errors.push('Please select who you\'re traveling with');
+    
+    const days = parseInt(formData?.noOfDays);
+    if (days < 1 || days > 15) errors.push('Trip duration must be between 1 and 15 days');
+    
+    return errors;
+  };
+
+  const saveTrip = async (tripDataObj) => {
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+      toast.error('User not authenticated');
+      setLoading(false);
+      return;
+    }
+
+    const user = JSON.parse(userData);
+    const docId = Date.now().toString();
+    
+    try {
+      setLoadingMessage('Saving Your Adventure');
+      setLoadingSubMessage('Creating your personalized travel guide...');
+      
+      const tripDocument = {
+        userEmail: user.email,
+        userId: user.uid,
+        userSelection: formData,
+        tripData: tripDataObj,
+        id: docId,
+        createdAt: new Date().toISOString(),
+        metadata: {
+          generatedDays: tripDataObj.itinerary?.length || 0,
+          totalActivities: tripDataObj.itinerary?.reduce((total, day) => total + (day.plan?.length || 0), 0) || 0,
+          destination: formData?.location?.label,
+          travelers: formData?.traveler,
+          budget: formData?.budget
+        }
+      };
+
+      await setDoc(doc(db, 'AITrips', docId), tripDocument);
+      localStorage.setItem('AITrip_' + docId, JSON.stringify({
+        userSelection: formData,
+        tripData: tripDataObj,
+        id: docId,
+        savedAt: new Date().toISOString()
+      }));
+      
+      setLoadingMessage('Success! 🎉');
+      setLoadingSubMessage('Redirecting to your amazing trip...');
+      
+      toast.success('🎉 Your dream trip has been created and saved!');
+      setTimeout(() => {
+        setLoading(false);
+        window.location.href = `/view-trip/${docId}`;
+      }, 2000);
+      
+    } catch (error) {
+      console.error("Error saving trip:", error);
+      setLoading(false);
+      toast.error('Failed to save trip. Please try again.');
+    }
+  };
+
+  const OnGenerateTrip = async () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      setOpenDialog(true);
+      return;
+    }
+
+    const errors = validateForm();
+    if (errors.length > 0) {
+      errors.forEach((error, index) => 
+        setTimeout(() => toast.error(error), index * 500)
+      );
+      return;
+    }
+
+    setLoading(true);
+    setLoadingMessage('Creating Your Dream Trip');
+    setLoadingSubMessage('Our AI is crafting the perfect itinerary...');
+    
+    const requestedDays = parseInt(formData?.noOfDays);
+    const destination = formData?.location?.label;
+
+    try {
+      setLoadingSubMessage(`Generating ${requestedDays} days of amazing experiences...`);
+      
+      const result = await generateTravelPlan(
+        destination, requestedDays, formData?.traveler, formData?.budget
+      );
+
+      console.log('Generated result:', result);
+
+      if (result && result.itinerary && Array.isArray(result.itinerary)) {
+        const generatedDays = result.itinerary.length;
+        const hasValidDays = result.itinerary.every(day => 
+          day.plan && Array.isArray(day.plan) && day.plan.length >= 3
+        );
+        
+        if (generatedDays === requestedDays && hasValidDays) {
+          toast.success(`🎉 Perfect! Complete ${requestedDays}-day itinerary created with ${result.itinerary.reduce((total, day) => total + day.plan.length, 0)} activities!`);
+          setLoadingMessage('Saving Your Perfect Trip');
+          setLoadingSubMessage('Almost done...');
+        } else if (generatedDays === requestedDays) {
+          toast.success(`✅ Generated ${requestedDays}-day itinerary successfully!`);
+          setLoadingMessage('Saving Your Trip');
+        } else if (generatedDays > 0) {
+          toast.warning(`⚠️ Generated ${generatedDays} out of ${requestedDays} days. You can still proceed!`);
+          setLoadingMessage('Saving Available Days');
+        } else {
+          toast.error('❌ Failed to generate proper itinerary');
+          setLoading(false);
+          return;
+        }
+
+        if (!result.hotels || result.hotels.length === 0) {
+          toast.warning('⚠️ Hotel recommendations may be limited');
+        }
+
+        const enhancedResult = {
+          ...result,
+          metadata: {
+            generatedAt: new Date().toISOString(),
+            requestedDays: requestedDays,
+            actualDays: generatedDays,
+            destination: destination,
+            travelers: formData?.traveler,
+            budget: formData?.budget,
+            totalActivities: result.itinerary.reduce((total, day) => total + (day.plan ? day.plan.length : 0), 0)
+          }
+        };
+
+        setTimeout(() => saveTrip(enhancedResult), 1500);
+        
+      } else {
+        console.error('Invalid result structure:', result);
+        toast.error('❌ Generated trip data is invalid. Please try again.');
+        setLoading(false);
+      }
+      
+    } catch (error) {
+      console.error('Trip generation error:', error);
+      
+      if (error.message && error.message.includes('quota')) {
+        toast.error('🚫 AI service quota exceeded. Please try again later.');
+      } else if (error.message && error.message.includes('network')) {
+        toast.error('🌐 Network error. Please check your connection.');
+      } else {
+        toast.error('❌ Trip generation failed. Please try again.');
+      }
+      
+      setLoading(false);
+    } finally {
+      setTimeout(() => {
+        setLoadingMessage('');
+        setLoadingSubMessage('');
+      }, 2000);
+    }
+  };
+
+  const GetUserProfile = (tokenInfo) => {
+    setLoading(true);
+    setLoadingMessage('Signing You In');
+    
+    fetch(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${tokenInfo?.access_token}`, {
+      headers: {
+        Authorization: `Bearer ${tokenInfo?.access_token}`,
+        Accept: 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then((resp) => {
+      const user = {
+        uid: resp.id,
+        email: resp.email,
+        name: resp.name,
+        picture: resp.picture
+      };
+      
+      toast.success(`Welcome ${resp.name}!`);
+      localStorage.setItem('user', JSON.stringify(user));
+      setOpenDialog(false);
+      setTimeout(OnGenerateTrip, 1000);
+    })
+    .catch(() => {
+      toast.error("Profile access denied");
+      setLoading(false);
+    });
+  };
+
+  const handleEmailAuth = async () => {
+    if (!authData.email || !authData.password) {
+      toast.error('Please fill all fields');
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      let userCredential;
+      
+      if (isLogin) {
+        userCredential = await signInWithEmailAndPassword(auth, authData.email, authData.password);
+        toast.success('Welcome back!');
+      } else {
+        if (!authData.name) {
+          toast.error('Name is required for registration');
+          setAuthLoading(false);
+          return;
+        }
+        
+        userCredential = await createUserWithEmailAndPassword(auth, authData.email, authData.password);
+        await updateProfile(userCredential.user, { displayName: authData.name });
+        toast.success('Account created successfully!');
+      }
+
+      const user = {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        name: userCredential.user.displayName || authData.name,
+        picture: userCredential.user.photoURL || null
+      };
+      
+      localStorage.setItem('user', JSON.stringify(user));
+      setOpenDialog(false);
+      setAuthData({ email: '', password: '', name: '' });
+      setTimeout(OnGenerateTrip, 1000);
+      
+    } catch (error) {
+      const errorCodes = {
+        'auth/user-not-found': 'No account found with this email',
+        'auth/wrong-password': 'Incorrect password',
+        'auth/email-already-in-use': 'Email already registered',
+        'auth/weak-password': 'Password should be at least 6 characters',
+        'auth/invalid-email': 'Invalid email address'
+      };
+      toast.error(errorCodes[error.code] || 'Authentication failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const renderOptionCards = (options, selectedValue, fieldName, cardType) => {
+    return options.map((item, index) => (
+      <div
+        key={item.title || item.people}
+        onClick={() => handleInputChange(fieldName, item.title || item.people)}
+        className={`option-card option-card-hover option-card-${cardType} ${
+          selectedValue === (item.title || item.people) ? 'option-card-selected' : 'option-card-unselected'
+        }`}
+        style={{ animationDelay: `${index * 0.1}s` }}
+      >
+        <div className={`${cardType === 'budget' ? 'icon-container' : 'icon-container-travelers'} ${
+          selectedValue === (item.title || item.people) ? 'icon-container-selected' : 'icon-container-unselected'
+        }`}>
+          <span className={cardType === 'budget' ? "text-4xl" : "text-3xl"}>
+            {item.icon}
+          </span>
+        </div>
+        
+        <div className={cardType === 'budget' ? "card-content" : "card-content-travelers"}>
+          <h3 className="card-title">{item.title}</h3>
+          <p className="card-description">{item.desc}</p>
+        </div>
+
+        {selectedValue === (item.title || item.people) && (
+          <div className="selection-indicator">
+            <div className="selection-badge">
+              <svg className="selection-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+        )}
+      </div>
+    ));
+  };
+
+  return (
+    <div className="trip-container">
+      <LoadingOverlay isVisible={loading} message={loadingMessage} subMessage={loadingSubMessage} />
+      
+      <div className="trip-content">
+        <header className="trip-header">
+          <h1 className="trip-title">
+            <span className="trip-title-gradient">Share your travel preferences</span>
+            <span className="text-4xl ml-2">🗺️</span>
+          </h1>
+          <p className="trip-subtitle">Let us create your dream journey with our AI-powered planner ✈️</p>
+        </header>
+
+        <div className="trip-hero-image">
+          <img src="/image.png" alt="Travel Planning" className="trip-image" />
+        </div>
+
+        <main className="trip-main">
+          <section>
+            <h2 className="section-title">Select Destination</h2>
+            <GooglePlacesAutocomplete
+              apiKey={import.meta.env.VITE_GOOGLE_PLACE_API_KEY}
+              selectProps={{
+                value: place,
+                onChange: (value) => {
+                  setPlace(value);
+                  handleInputChange('location', value);
+                },
+                placeholder: "Where would you like to go?",
+                className: "places-autocomplete",
+                styles: {
+                  control: (provided) => ({
+                    ...provided,
+                    padding: '8px',
+                    borderRadius: '12px',
+                    border: '2px solid #e0f2fe',
+                    '&:hover': { border: '2px solid #0ea5e9' }
+                  })
+                }
+              }}
+            />
+          </section>
+
+          <section>
+            <h2 className="section-title">Trip Duration (1-15 days)</h2>
+            <Input
+              type="number"
+              min="1"
+              max="15"
+              onChange={(e) => handleInputChange('noOfDays', e.target.value)}
+              className="trip-input"
+              placeholder="Enter number of days"
+            />
+          </section>
+
+          <section>
+            <h2 className="section-title-with-margin">Budget Preference</h2>
+            <div className="budget-grid">
+              {renderOptionCards(SelectBudgetOptions, formData?.budget, 'budget', 'budget')}
+            </div>
+          </section>
+
+          <section>
+            <h2 className="section-title-with-margin">Travel Companions</h2>
+            <div className="travelers-grid">
+              {renderOptionCards(SelectTravelesList, formData?.traveler, 'traveler', 'travelers')}
+            </div>
+          </section>
+
+          <div className="button-container">
+            <Button
+              disabled={loading}
+              onClick={OnGenerateTrip}
+              className={`generate-button ${loading ? "generate-button-disabled" : "generate-button-active"}`}
+            >
+              {loading ? (
+                <div className="button-loading-content">
+                  <AiOutlineLoading3Quarters className="button-loading-icon" />
+                  Processing...
+                </div>
+              ) : '✨ Generate My Trip'}
+            </Button>
+          </div>
+        </main>
+
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+          <DialogContent className="dialog-content max-w-md">
+            <DialogHeader>
+              <div className="text-center mb-6">
+                <img src="/logo.svg" alt="Logo" className="w-16 h-16 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {isLogin ? 'Welcome Back' : 'Create Account'}
+                </h2>
+                <p className="text-gray-600 mt-2">
+                  {isLogin ? 'Sign in to create your trip' : 'Join us to start planning'}
+                </p>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {!isLogin && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                  <Input
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={authData.name}
+                    onChange={(e) => handleAuthInputChange('name', e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  value={authData.email}
+                  onChange={(e) => handleAuthInputChange('email', e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={authData.password}
+                  onChange={(e) => handleAuthInputChange('password', e.target.value)}
+                  className="w-full"
+                  minLength={6}
+                />
+              </div>
+
+              <Button
+                onClick={handleEmailAuth}
+                disabled={authLoading}
+                className="w-full bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white py-3 rounded-xl font-semibold"
+              >
+                {authLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+              </Button>
+            </div>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">or</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => googleLogin()}
+              disabled={authLoading}
+              className="w-full bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl font-semibold flex items-center justify-center gap-3"
+            >
+              <FcGoogle className="text-xl" />
+              Continue with Google
+            </Button>
+
+            <div className="text-center mt-6">
+              <p className="text-gray-600">
+                {isLogin ? "Don't have an account? " : "Already have an account? "}
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-sky-500 hover:text-sky-600 font-semibold"
+                >
+                  {isLogin ? 'Sign Up' : 'Sign In'}
+                </button>
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  );
+}
+
+export default CreateTrip;
