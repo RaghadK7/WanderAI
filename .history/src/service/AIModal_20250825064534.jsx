@@ -27,7 +27,6 @@ export const generateTravelPlan = async (location, days, traveler, budget) => {
   try {
     const prompt = createPrompt(location, days, traveler, budget);
 
-    
     for (const modelName of MODELS) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });

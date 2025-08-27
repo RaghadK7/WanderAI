@@ -68,8 +68,7 @@ function PlaceCardItem({ place }) {
               </div>
             ) : (
               <img
-                src={photoUrl || "https://via.placeholder.com/160x160/e0f2fe/0891b2?text=No+Image"}
-                alt="Place Image"
+               
                 className="w-full md:w-[160px] h-[160px] object-cover group-hover:scale-110 transition-transform duration-300"
                 onError={(e) => {
                   console.error('Image failed to load:', photoUrl);

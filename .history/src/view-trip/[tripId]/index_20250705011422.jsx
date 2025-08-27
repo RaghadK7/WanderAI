@@ -17,6 +17,7 @@ function ViewTrip() {
     tripId&&GetTripData();
   },[tripId])
 
+  // Firebase imports
   
   const GetTripData=async() => {
     const docRef=doc(db, 'AITrips', tripId);

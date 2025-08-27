@@ -19,6 +19,7 @@ function PlaceCardItem({ place }) {
   }, [place]);
 
   const GetPlacePhoto = async () => {
+    // Make sure place and placeName exist
     if (!place || !place.placeName) {
       console.warn('Place or placeName is missing:', place);
       return;

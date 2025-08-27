@@ -87,7 +87,7 @@ function CreateTrip() {
     if (!formData?.traveler) errors.push('Please select who you\'re traveling with');
     
     const days = parseInt(formData?.noOfDays);
-    console.log(`🔢 Days validation: input="${formData?.noOfDays}", parsed=${days}, isValid=${!isNaN(days) && days >= 1 && days <= 15}`);
+    console.log(`🔢 Days validation: input="${formData?.noOfDays}", parsed=${days}, isValid=${!isNaN(days) && days >= 1 && days <= 30}`);
     
     if (isNaN(days) || days < 1 || days > 15) {
       errors.push('Trip duration must be between 1 and 15 days');
@@ -389,7 +389,7 @@ function CreateTrip() {
           <section>
             <h2 className="section-title">Select Destination</h2>
             <GooglePlacesAutocomplete
-              apiKey={import.meta.env.VITE_GOOGLE_PLACE_API_KEY}
+              apiKey={}
               selectProps={{
                 value: place,
                 onChange: (value) => {

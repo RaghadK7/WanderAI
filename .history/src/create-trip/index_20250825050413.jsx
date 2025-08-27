@@ -87,7 +87,7 @@ function CreateTrip() {
     if (!formData?.traveler) errors.push('Please select who you\'re traveling with');
     
     const days = parseInt(formData?.noOfDays);
-    console.log(`🔢 Days validation: input="${formData?.noOfDays}", parsed=${days}, isValid=${!isNaN(days) && days >= 1 && days <= 15}`);
+    console.log(`🔢 Days validation: input="${formData?.noOfDays}", parsed=${days}, isValid=${!isNaN(days) && days >= 1 && days <= 30}`);
     
     if (isNaN(days) || days < 1 || days > 15) {
       errors.push('Trip duration must be between 1 and 15 days');
@@ -141,12 +141,12 @@ function CreateTrip() {
 
   
   const OnGenerateTrip = async () => {
-    console.log('TRIP GENERATION STARTED ');
-    console.log(' Current Form State:', formData);
+    console.log('\n🚀 === TRIP GENERATION STARTED ===');
+    console.log('📋 Current Form State:', formData);
     
     const user = localStorage.getItem('user');
     if (!user) {
-      console.log(' User not authenticated');
+      console.log('❌ User not authenticated');
       setOpenDialog(true);
       return;
     }
@@ -171,7 +171,7 @@ function CreateTrip() {
     const traveler = formData?.traveler;
     const budget = formData?.budget;
     
-    console.log('INPUT VALIDATION');
+    console.log('\n🔍 === INPUT VALIDATION ===');
     console.log('Raw Days Input:', rawDays, '(type:', typeof rawDays, ')');
     console.log('Parsed Days:', requestedDays, '(type:', typeof requestedDays, ')');
     console.log('Is Valid Number:', !isNaN(requestedDays) && requestedDays > 0);
@@ -181,19 +181,21 @@ function CreateTrip() {
 
     
     if (isNaN(requestedDays) || requestedDays < 1) {
-      console.error(' Invalid days value:', rawDays, '->', requestedDays);
+      console.error('❌ Invalid days value:', rawDays, '->', requestedDays);
       toast.error('Invalid number of days. Please enter a valid number.');
       setLoading(false);
       return;
     }
 
     try {
-      console.log(' CALLING AI SERVICE');
+      console.log('\n🤖 === CALLING AI SERVICE ===');
       console.log(`Calling generateTravelPlan with:`);
       console.log(`- Location: "${destination}"`);
       console.log(`- Days: ${requestedDays} (${typeof requestedDays})`);
       console.log(`- Traveler: "${traveler}"`);
       console.log(`- Budget: "${budget}"`);
+      
+      
       
       const result = await generateTravelPlan(
         destination,
@@ -202,13 +204,13 @@ function CreateTrip() {
         budget
       );
 
-      console.log(' AI RESPONSE');
+      console.log('\n📊 === AI RESPONSE ===');
       console.log('Full Result:', result);
 
       if (result?.itinerary) {
         const generatedDays = result.itinerary.length;
         
-        console.log(` SUCCESS: Generated ${generatedDays} out of ${requestedDays} requested days`);
+        console.log(`🎯 SUCCESS: Generated ${generatedDays} out of ${requestedDays} requested days`);
         console.log('Generated Itinerary:', result.itinerary.map(day => ({
           day: day.day,
           activities: day.plan?.length || 0
@@ -217,10 +219,10 @@ function CreateTrip() {
         if (generatedDays === requestedDays) {
           toast.success(`🎉 Complete ${requestedDays}-day itinerary created!`);
         } else if (generatedDays > 0) {
-          toast.warning(` Generated ${generatedDays} out of ${requestedDays} days`);
+          toast.warning(`⚠️ Generated ${generatedDays} out of ${requestedDays} days`);
         } else {
           toast.error('No itinerary generated');
-          console.error(' Empty itinerary generated');
+          console.error('❌ Empty itinerary generated');
           setLoading(false);
           return;
         }
@@ -228,10 +230,10 @@ function CreateTrip() {
         setTimeout(() => saveTrip(result), 1000);
       } else {
         toast.error('Invalid AI response');
-        console.error(" AI Response missing itinerary:", result);
+        console.error("❌ AI Response missing itinerary:", result);
       }
     } catch (error) {
-      console.error(' TRIP GENERATION ERROR ');
+      console.error('\n🔥 === TRIP GENERATION ERROR ===');
       console.error('Error details:', error);
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
@@ -240,7 +242,7 @@ function CreateTrip() {
       setLoading(false);
       setLoadingMessage('');
       setLoadingSubMessage('');
-      console.log(' TRIP GENERATION ENDED ');
+      console.log('\n✅ === TRIP GENERATION ENDED ===\n');
     }
   };
 

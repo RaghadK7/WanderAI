@@ -19,6 +19,7 @@ function PlaceCardItem({ place }) {
   }, [place]);
 
   const GetPlacePhoto = async () => {
+    // Make sure place and placeName exist
     if (!place || !place.placeName) {
       console.warn('Place or placeName is missing:', place);
       return;
@@ -47,6 +48,8 @@ function PlaceCardItem({ place }) {
       setIsLoadingPhoto(false);
     }
   };
+
+  
   if (!place) {
     return (
       <div className="bg-gray-100 border border-gray-200 rounded-2xl p-5 shadow-lg">

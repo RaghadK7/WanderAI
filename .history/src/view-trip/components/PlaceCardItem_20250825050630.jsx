@@ -19,6 +19,7 @@ function PlaceCardItem({ place }) {
   }, [place]);
 
   const GetPlacePhoto = async () => {
+    // Make sure place and placeName exist
     if (!place || !place.placeName) {
       console.warn('Place or placeName is missing:', place);
       return;
@@ -37,7 +38,7 @@ function PlaceCardItem({ place }) {
         const photoName = photos[0].name;
         const PhotoUrl = PHOTO_REF_URL.replace('{NAME}', photoName);
         setPhotoUrl(PhotoUrl);
-        console.log('Photo URL generated:', PhotoUrl); 
+        console.log('Photo URL generated:', PhotoUrl); // To verify the URL
       } else {
         console.warn('No photos found for place:', place.placeName);
       }
@@ -47,6 +48,8 @@ function PlaceCardItem({ place }) {
       setIsLoadingPhoto(false);
     }
   };
+
+  // Make sure place exists before rendering the component
   if (!place) {
     return (
       <div className="bg-gray-100 border border-gray-200 rounded-2xl p-5 shadow-lg">
