@@ -90,3 +90,11 @@ This is an academic project. For questions or collaboration:
 - Google Cloud Platform for AI services
 - Firebase for backend infrastructure
 - React community for excellent tools
+
+## 📸 Screenshots
+
+![Home](public/Images/Home.png)
+![Main](public/Images/Main.png)
+![Trips](public/Images/Trips.png)
+![Past-Trips](puclic/Images/past-Trips.png)
+![Map](public/Images/Map.png)
