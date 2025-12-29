@@ -96,5 +96,5 @@ This is an academic project. For questions or collaboration:
 ![Home](public/Images/Home.png)
 ![Main](public/Images/Main.png)
 ![Trips](public/Images/Trips.png)
-![Past-Trips](puclic/Images/past-Trips.png)
+![Past-Trips](public/Images/Past-Trips.png)
 ![Map](public/Images/Map.png)
